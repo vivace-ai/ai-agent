@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>모과상점</title>
+<style>
+  body { margin: 0; font-family: Pretendard, "Apple SD Gothic Neo",
+         "Malgun Gothic", sans-serif; color: #2b2a26; background: #fff; }
+  nav { padding: 18px 32px; border-bottom: 1px solid #eee;
+        font-weight: 700; font-size: 20px; }
+  main { max-width: 880px; margin: 0 auto; padding: 32px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .item { border: 1px solid #eee; border-radius: 12px; padding: 16px; }
+  .photo { height: 120px; border-radius: 8px; background: #f3ecd9;
+           margin-bottom: 12px; }
+  .price { color: #8a8372; }
+</style>
+</head>
+<body>
+<nav>모과상점</nav>
+<main>
+  <h1>책상 위의 작은 물건들</h1>
+  <div class="grid">
+    <div class="item"><div class="photo"></div>편지지 세트<div class="price">5,500원</div></div>
+    <div class="item"><div class="photo"></div>황동 클립 세트<div class="price">4,800원</div></div>
+    <div class="item"><div class="photo"></div>모과빛 만년필 잉크<div class="price">15,000원</div></div>
+  </div>
+</main>
+<script src="http://localhost:8000/static/embed.js"></script>
+</body>
+</html>

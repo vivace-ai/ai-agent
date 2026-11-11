@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>모과상점 문의</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Pretendard, "Apple SD Gothic Neo",
+         "Malgun Gothic", sans-serif; background: #fbf7ee; color: #2b2a26; }
+  .chat { display: flex; flex-direction: column; height: 100vh; }
+  header { padding: 14px 16px; background: #d9a514; color: #fff;
+           font-weight: 700; }
+  header small { display: block; font-weight: 400; opacity: .9; }
+  #log { flex: 1; overflow-y: auto; padding: 16px; display: flex;
+         flex-direction: column; gap: 10px; }
+  .msg { max-width: 82%; padding: 10px 13px; border-radius: 14px;
+         line-height: 1.55; white-space: pre-wrap; font-size: 15px; }
+  .agent { align-self: flex-start; background: #fff;
+           border: 1px solid #eadfc6; }
+  .me { align-self: flex-end; background: #2f5d50; color: #fff; }
+  .note { align-self: center; font-size: 13px; color: #8a8372; }
+  form { display: flex; gap: 8px; padding: 12px; background: #fff;
+         border-top: 1px solid #eadfc6; }
+  input { flex: 1; padding: 11px 12px; border: 1px solid #d8cfb8;
+          border-radius: 10px; font: inherit; }
+  button { padding: 0 16px; border: 0; border-radius: 10px;
+           background: #d9a514; color: #fff; font: inherit;
+           font-weight: 700; cursor: pointer; }
+  button:disabled { opacity: .5; cursor: default; }
+</style>
+</head>
+<body>
+<div class="chat">
+  <header>모과상점 문의<small>AI 응대 담당이 답해 드려요. 처리할 수 없는 문의는 사장님께 전달해요.</small></header>
+  <div id="log" aria-live="polite"></div>
+  <form id="form">
+    <input id="text" maxlength="500" placeholder="문의 내용을 입력하세요" autocomplete="off" aria-label="문의 내용">
+    <button id="send">보내기</button>
+  </form>
+</div>
+<script>
+const log = document.getElementById("log");
+const form = document.getElementById("form");
+const input = document.getElementById("text");
+const send = document.getElementById("send");
+let visitor = null;  // 서버가 준 방문자 번호. 이 창을 닫으면 사라진다
+
+function add(kind, text) {
+  const item = document.createElement("div");
+  item.className = "msg " + kind;
+  item.textContent = text;  // 글자로만 넣는다. HTML로 해석하지 않는다
+  log.appendChild(item);
+  log.scrollTop = log.scrollHeight;
+  return item;
+}
+
+async function post(path, body) {
+  const response = await fetch(path, {
+    method: "POST",
+    headers: {"Content-Type": "application/json",
+              "X-Visitor": visitor || ""},
+    body: JSON.stringify(body || {}),
+  });
+  return [response.ok, await response.json()];
+}
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const text = input.value.trim();
+  if (!text) return;
+  add("me", text);
+  input.value = "";
+  send.disabled = true;
+  const waiting = add("note", "답을 준비하고 있어요…");
+  try {
+    if (!visitor) visitor = (await post("/api/visitors"))[1].visitor;
+    const [ok, data] = await post("/api/messages", {text});
+    waiting.remove();
+    add(ok ? "agent" : "note", ok ? data.answer : data.error);
+  } catch (error) {
+    waiting.remove();
+    add("note", "연결이 끊겼어요. 잠시 뒤에 다시 시도해 주세요.");
+  }
+  send.disabled = false;
+  input.focus();
+});
+
+add("agent", "안녕하세요, 모과상점이에요. 무엇을 도와드릴까요?");
+</script>
+</body>
+</html>

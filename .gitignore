@@ -1,0 +1,18 @@
+# 실행하면 생기는 파일
+*.db
+managed.json
+versions.md
+server.log
+logs/
+review/
+compare/
+*-results.json
+policies.attack.md
+
+# 파이썬
+__pycache__/
+*.pyc
+.venv/
+
+# 키를 적은 파일은 올리지 않는다
+.env
