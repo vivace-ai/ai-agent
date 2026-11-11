@@ -130,7 +130,8 @@ def create_request(order_id, phone_last4, kind, reason):
     state = order["주문 상태"]
     if kind == "취소":  # 취소는 발송 준비가 시작되기 전에만 받는다
         if state != "결제 완료":
-            return _refuse(f"결제 완료 상태에서만 취소할 수 있음 (현재 {state})")
+            return _refuse(
+                f"결제 완료 상태에서만 취소할 수 있음 (현재 {state})")
     elif state != "배송 완료":
         return _refuse(f"상품을 받은 뒤에만 접수할 수 있음 (현재 {state})")
     else:
@@ -198,11 +199,13 @@ def create_handoff(kind, summary, order_id="", phone_last4="",
     """문의를 사장에게 넘길 목록에 기록한다."""
     if kind not in HANDOFF_KINDS:
         return _refuse("종류는 배송 지연 또는 기타여야 함", "인계")
-    lines = [line for line in summary.strip().splitlines() if line.strip()]
+    lines = [line for line in summary.strip().splitlines()
+             if line.strip()]
     if not lines:
         return _refuse("요약이 비어 있음", "인계")
     if len(lines) > 3:
-        return _refuse(f"요약은 세 줄 이하여야 함 (현재 {len(lines)}줄)", "인계")
+        return _refuse(
+            f"요약은 세 줄 이하여야 함 (현재 {len(lines)}줄)", "인계")
     if any(len(line) > LINE_LIMIT for line in lines):
         return _refuse(f"요약 한 줄은 {LINE_LIMIT}자 이하여야 함", "인계")
     order_id = order_id.strip().upper()
@@ -211,7 +214,8 @@ def create_handoff(kind, summary, order_id="", phone_last4="",
             return _refuse(NOT_FOUND, "인계")
         reply_to = ""  # 주문에 등록된 연락처로 답한다
     elif "@" not in reply_to:
-        return _refuse("주문이 없는 문의는 답을 받을 이메일이 필요함", "인계")
+        return _refuse(
+            "주문이 없는 문의는 답을 받을 이메일이 필요함", "인계")
     with sqlite3.connect(DB_PATH) as db:
         db.execute(HANDOFFS_TABLE)
         if order_id:
